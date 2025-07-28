@@ -1,0 +1,20 @@
+name: Publish to PyPI
+on:
+  push:
+    tags: ['v*']          # タグ push のときだけ発火
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - run: pip install build twine
+    - run: python -m build              # dist/whl & sdist を作成
+    - env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: twine upload dist/*

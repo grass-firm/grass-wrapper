@@ -1,0 +1,17 @@
+name: Test & Lint
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4          # リポジトリを取得
+    - uses: actions/setup-python@v5      # Python 3.12 をインストール
+      with:
+        python-version: '3.12'
+
+    - run: pip install -e .[dev]         # grass-wrapper と dev 依存を入れる
+    - run: ruff check .                  # コードフォーマット & Lint
+    - run: pytest -q                     # テスト実行
