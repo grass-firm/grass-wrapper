@@ -16,6 +16,7 @@ from typing import Any, Iterable
 from google.cloud import bigquery
 from google.api_core.exceptions import NotFound
 from google.cloud.bigquery import job as bq_job  # for precise typing
+from google.cloud.bigquery import TimePartitioning
 
 __all__ = ["BigQuery"]
 
