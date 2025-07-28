@@ -13,11 +13,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Iterable
 
-import pandas as pd
 from google.cloud import bigquery
 from google.api_core.exceptions import NotFound
 from google.cloud.bigquery import job as bq_job  # for precise typing
-from google.cloud.bigquery import TimePartitioning, TimePartitioningType
 
 __all__ = ["BigQuery"]
 
