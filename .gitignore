@@ -1,0 +1,17 @@
+# --- 仮想環境 / パッケージ ---
+.venv/
+dist/
+build/
+*.egg-info/
+
+# --- Python キャッシュ ---
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+
+# --- IDE & OS 雑多 ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
