@@ -26,7 +26,7 @@ classifiers = [
 "Source" = "https://github.com/grass-firm/grass-wrapper"
 "Bug Tracker" = "https://github.com/grass-firm/grass-wrapper/issues"
 "Documentation" = "https://github.com/grass-firm/grass-wrapper#readme"
-
+ 
 [project.optional-dependencies]
 dev = [
   "pytest",
@@ -36,16 +36,10 @@ dev = [
   "twine",
 ]
 
-[tool.hatch.build]
-sources = ["src"]
-
 [tool.hatch.build.targets.wheel]
-packages = ["grass_wrapper"]
+packages = ["src/grass_wrapper"]
 exclude = ["tests*"]
 
 [tool.hatch.build.targets.sdist]
-packages = ["grass_wrapper"]
+packages = ["src/grass_wrapper"]
 exclude = ["tests*"]
-
-[tool.hatch.build.targets.editable]
-packages = ["grass_wrapper"]
