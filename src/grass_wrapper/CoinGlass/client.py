@@ -92,9 +92,9 @@ class CoinGlass:
         exchange: str = "Bybit",
         symbol: str,
         interval: str = "1h",
+        limit: int | None = None,
         start_time: int | None = None,
         end_time: int | None = None,
-        limit: int | None = None,
     ) -> Dict[str, Any]:
         """
         Funding‑Rate OHLC ヒストリカルデータを取得する。
@@ -148,6 +148,69 @@ class CoinGlass:
                 # keep the original OHLC key order
                 ohlc_part = {k: v for k, v in row.items() if k not in meta}
                 # replace row with ordered dict (Python 3.7+ preserves insertion order)
+                res["data"][idx] = {**meta, **ohlc_part}
+        # --------------------------------------------------------------------
+
+        return res
+
+    # ------------------------------------------------------------------ #
+    def get_price_ohlc_history(
+        self,
+        *,
+        exchange: str = "Bybit",
+        symbol: str,
+        interval: str = "1h",
+        limit: int | None = None,
+        start_time: int | None = None,
+        end_time: int | None = None,
+    ) -> Dict[str, Any]:
+        """
+        Spot Price OHLC ヒストリカルデータを取得する。
+
+        Parameters
+        ----------
+        exchange : str, default Bybit
+            スポット取引所名（例: ``Binance``, ``OKX`` など）。
+        symbol : str
+            取引ペア（例: ``BTCUSDT``）。
+        interval : str, default 1h
+            データの集計時間足。指定可能値：  
+            ``1m, 3m, 5m, 15m, 30m, 1h, 4h, 6h, 8h, 12h, 1d, 1w``。
+        limit : int | None, optional
+            取得件数の上限。既定 ``1000``、最大 ``4500``。
+        start_time : int | None, optional
+            取得開始タイムスタンプ（UNIXエポック **ミリ秒**）。
+        end_time : int | None, optional
+            取得終了タイムスタンプ（UNIXエポック **ミリ秒**）。
+
+        Returns
+        -------
+        dict
+            Price OHLC データ。レスポンスフォーマットは公式仕様に準拠。
+        """
+        params: Dict[str, Any] = {
+            "exchange": exchange,
+            "symbol": symbol,
+            "interval": interval,
+        }
+        if start_time is not None:
+            params["startTime"] = start_time
+        if end_time is not None:
+            params["endTime"] = end_time
+        if limit is not None:
+            params["limit"] = limit
+
+        res = self._get("/spot/price-ohlc-history", **params)
+
+        # --- enrich: add meta fields to each OHLC row -----------------------
+        if isinstance(res, dict) and isinstance(res.get("data"), list):
+            for idx, row in enumerate(res["data"]):
+                meta = {
+                    "exchange": row.get("exchange", exchange),
+                    "symbol": row.get("symbol", symbol),
+                    "interval": row.get("interval", interval),
+                }
+                ohlc_part = {k: v for k, v in row.items() if k not in meta}
                 res["data"][idx] = {**meta, **ohlc_part}
         # --------------------------------------------------------------------
 
