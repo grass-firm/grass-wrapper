@@ -36,10 +36,11 @@ dev = [
   "twine",
 ]
 
+[tool.hatch.build]
+sources = ["src"]
+
 [tool.hatch.build.targets.wheel]
-packages = ["src/grass_wrapper"]
 exclude = ["tests*"]
 
 [tool.hatch.build.targets.sdist]
-packages = ["src/grass_wrapper"]
 exclude = ["tests*"]
