@@ -200,7 +200,7 @@ class CoinGlass:
         if limit is not None:
             params["limit"] = limit
 
-        res = self._get("/spot/price-ohlc-history", **params)
+        res = self._get("/futures/price/history", **params)
 
         # --- enrich: add meta fields to each OHLC row -----------------------
         if isinstance(res, dict) and isinstance(res.get("data"), list):
