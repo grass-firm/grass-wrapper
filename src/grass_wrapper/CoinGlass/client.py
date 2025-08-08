@@ -79,23 +79,25 @@ class CoinGlass:
         except requests.RequestException as exc:
             raise exc
 
-    def _get_ohlc_history(
+
+    def _get_timeseries(
         self,
         endpoint: str,
         *,
-        exchange: str,
         symbol: str,
         interval: str = "1h",
+        exchange: str | None = None,
         limit: int | None = None,
         start_time: int | None = None,
         end_time: int | None = None,
         unit: str | None = None,
     ) -> Dict[str, Any]:
         params: Dict[str, Any] = {
-            "exchange": exchange,
             "symbol": symbol,
             "interval": interval,
         }
+        if exchange is not None:
+            params["exchange"] = exchange
         if start_time is not None:
             params["startTime"] = start_time
         if end_time is not None:
@@ -109,13 +111,14 @@ class CoinGlass:
 
         if isinstance(res, dict) and isinstance(res.get("data"), list):
             for idx, row in enumerate(res["data"]):
-                meta = {
-                    "exchange": row.get("exchange", exchange),
+                meta: Dict[str, Any] = {
                     "symbol": row.get("symbol", symbol),
                     "interval": row.get("interval", interval),
                 }
-                ohlc_part = {k: v for k, v in row.items() if k not in meta}
-                res["data"][idx] = {**meta, **ohlc_part}
+                if exchange is not None or "exchange" in row:
+                    meta["exchange"] = row.get("exchange", exchange)
+                data_fields = {k: v for k, v in row.items() if k not in meta}
+                res["data"][idx] = {**meta, **data_fields}
         return res
 
     # ------------------------------------------------------------------ #
@@ -135,7 +138,7 @@ class CoinGlass:
         start_time: int | None = None,
         end_time: int | None = None,
     ) -> Dict[str, Any]:
-        return self._get_ohlc_history(
+        return self._get_timeseries(
             "/futures/funding-rate/history",
             exchange=exchange,
             symbol=symbol,
@@ -156,7 +159,7 @@ class CoinGlass:
         start_time: int | None = None,
         end_time: int | None = None,
     ) -> Dict[str, Any]:
-        return self._get_ohlc_history(
+        return self._get_timeseries(
             "/futures/price/history",
             exchange=exchange,
             symbol=symbol,
@@ -175,9 +178,9 @@ class CoinGlass:
         limit: int | None = None,
         start_time: int | None = None,
         end_time: int | None = None,
-        unit: str = "usd"
+        unit: str | None = None
     ) -> Dict[str, Any]:
-        return self._get_ohlc_history(
+        return self._get_timeseries(
             "/futures/open-interest/history",
             exchange=exchange,
             symbol=symbol,
@@ -186,4 +189,46 @@ class CoinGlass:
             start_time=start_time,
             end_time=end_time,
             unit=unit,
+        )
+
+    def get_liquidation_history(
+        self,
+        *,
+        exchange: str = "Bybit",
+        symbol: str,
+        interval: str = "1h",
+        limit: int | None = None,
+        start_time: int | None = None,
+        end_time: int | None = None,
+    ) -> Dict[str, Any]:
+        """
+        Pair Liquidation History（取引所×ペアの清算履歴）を取得する。
+        Docs: /futures/liquidation/history
+
+        Parameters
+        ----------
+        exchange : str, default "Bybit"
+            取引所名（例: "Binance", "OKX", "Bybit" など）。
+        symbol : str
+            取引ペア（例: "BTCUSDT"）。
+        interval : str, default "1h"
+            集計間隔（プランにより最小粒度に制限あり）。
+        limit : int | None, optional
+            取得件数。
+        start_time, end_time : int | None, optional
+            期間指定（UNIX ミリ秒）。
+
+        Returns
+        -------
+        dict
+            レスポンス例: {"code":"0","data":[{"time":...,"long_liquidation_usd":...,"short_liquidation_usd":...}, ...]}
+        """
+        return self._get_timeseries(
+            "/futures/liquidation/history",
+            exchange=exchange,
+            symbol=symbol,
+            interval=interval,
+            limit=limit,
+            start_time=start_time,
+            end_time=end_time,
         )
