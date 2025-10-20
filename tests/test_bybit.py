@@ -8,7 +8,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 import json
 from typing import Any, Dict
 
-import types
 import requests
 
 from grass_wrapper.Bybit import Bybit, BybitConfig
