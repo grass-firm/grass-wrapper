@@ -4,6 +4,8 @@ import pytest
 
 from grass_wrapper.CoinGlass.client import CoinGlass
 
+RUN_LIVE_CG = os.environ.get("RUN_LIVE_CG") == "1"
+pytestmark = pytest.mark.skipif(not RUN_LIVE_CG, reason="Set RUN_LIVE_CG=1 to run CoinGlass live tests")
 
 @pytest.mark.skipif(
     "CG_API_KEY" not in os.environ,
